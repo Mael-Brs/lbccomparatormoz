@@ -1,0 +1,29 @@
+{
+
+  "manifest_version": 2,
+  "name": "LBC comparator",
+  "version": "1.0",
+
+  "description": "Extract data from leboncoin to compare offers",
+
+  "icons": {
+    "48": "icons/border-48.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.leboncoin.fr/*"],
+      "js": ["comparator.js"]
+    }
+  ],
+  "background": {
+    "scripts": ["background-script.js"]
+  },
+  "permissions": [
+    "<all_urls>",
+    "tabs",
+    "downloads",
+    "downloads.open"
+  ]
+
+}
