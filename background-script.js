@@ -1,5 +1,22 @@
+const chunk = 5;
 let cars = [];
 let resultSize = null;
+
+function sendMessageToTabs(tabs) {
+    for (let tab of tabs) {
+        browser.tabs.sendMessage(
+            tab.id,
+            {action: 'extractLinks'}
+        );
+    }
+}
+  
+browser.browserAction.onClicked.addListener(() => {
+    browser.tabs.query({
+        currentWindow: true,
+        active: true
+    }).then(sendMessageToTabs);
+});
 
 browser.runtime.onMessage.addListener(function(m) {
     if(m.urls){
@@ -12,7 +29,6 @@ browser.runtime.onMessage.addListener(function(m) {
 
 async function asyncExtract(urls){
     let i,j,childArray;
-    const chunk = 10;
     resultSize = 0;
     for (i=0,j=urls.length; i<j; i+=chunk) {
         childArray = urls.slice(i,i+chunk);

@@ -1,5 +1,11 @@
-adsLinks();
+
 extractAndSend();
+
+browser.runtime.onMessage.addListener((m) => {
+    if(m.action && m.action === 'extractLinks'){
+        adsLinks();
+    }
+});
 
 function extractCarData(){
     const car = {};
@@ -20,7 +26,7 @@ function extractCarData(){
 }
 
 function extractAndSend(){
-    if(window.location.toString().indexOf('voitures/offres') !== -1){
+    if(window.location.toString().indexOf('recherche/') !== -1){
         return;
     }
     const car = extractCarData();

@@ -9,7 +9,13 @@
   "icons": {
     "48": "icons/border-48.png"
   },
-
+  "browser_action": {
+    "default_icon": {
+      "19": "icons/_ionicons_svg_md-car.svg",
+      "38": "icons/_ionicons_svg_md-car.svg"
+    },
+    "default_title": "Exraxt lbc"
+  },
   "content_scripts": [
     {
       "matches": ["*://*.leboncoin.fr/*"],
