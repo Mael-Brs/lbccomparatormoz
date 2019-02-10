@@ -2,6 +2,10 @@ const chunk = 5;
 let cars = [];
 let resultSize = null;
 
+/**
+ * Send extract notification to content script
+ * @param {Browser tabs} tabs 
+ */
 function sendMessageToTabs(tabs) {
     for (let tab of tabs) {
         browser.tabs.sendMessage(
@@ -10,7 +14,10 @@ function sendMessageToTabs(tabs) {
         );
     }
 }
-  
+
+/**
+ * Toolbar button click action
+ */
 browser.browserAction.onClicked.addListener(() => {
     browser.tabs.query({
         currentWindow: true,
@@ -18,6 +25,9 @@ browser.browserAction.onClicked.addListener(() => {
     }).then(sendMessageToTabs);
 });
 
+/**
+ * Tab notification listener
+ */
 browser.runtime.onMessage.addListener(function(m) {
     if(m.urls){
         asyncExtract(m.urls);
@@ -27,6 +37,10 @@ browser.runtime.onMessage.addListener(function(m) {
     }
 });
 
+/**
+ * Chunck list of ads urls to extract
+ * @param {Array<String>} urls 
+ */
 async function asyncExtract(urls){
     let i,j,childArray;
     resultSize = 0;
@@ -38,6 +52,10 @@ async function asyncExtract(urls){
     exportToCsv(cars);
 }
 
+/**
+ * Open tab and wait for extracting response
+ * @param {*} urls 
+ */
 async function chunckAndOpenTab(urls){
     const promise = waitForFinish();
     for(let i = 0 ; i < urls.length ; i++){
@@ -46,6 +64,9 @@ async function chunckAndOpenTab(urls){
     await promise;
 }
 
+/**
+ * Wait for extracting
+ */
 function waitForFinish() {
     return new Promise(resolve => {
         const extractCarCallback = (m, sender) => {
@@ -62,6 +83,10 @@ function waitForFinish() {
     });
 }
 
+/**
+ * Open a tab
+ * @param {String} url 
+ */
 function openTab(url){
     browser.tabs.create(
         {
@@ -71,6 +96,10 @@ function openTab(url){
     );
 }
 
+/**
+ * Export data to csv file
+ * @param {String} data 
+ */
 function exportToCsv(data){
 
     const columnDelimiter = ',';
