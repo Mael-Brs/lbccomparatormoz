@@ -122,7 +122,7 @@ function exportToCsv(data){
                 result += columnDelimiter;
             }
 
-            result += typeof item[key] === 'string' && item[key].includes(columnDelimiter) ? `"${item[key]}"` : item[key];
+            result += typeof item[key] === 'string' && item[key].includes(columnDelimiter) ? `'${item[key]}'` : item[key];
             ctr++;
         });
         result += lineDelimiter;
@@ -130,4 +130,11 @@ function exportToCsv(data){
   
     let blob = new Blob([result], {type: 'text/csv;charset=utf-8'});
     browser.downloads.download({url: URL.createObjectURL(blob), saveAs: true});
+    const createData = {
+        type: 'detached_panel',
+        url: 'data-window.html',
+        width: 250,
+        height: 100
+    };
+    browser.windows.create(createData);
 }
