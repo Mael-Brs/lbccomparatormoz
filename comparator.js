@@ -9,18 +9,18 @@ browser.runtime.onMessage.addListener((m) => {
 
 function extractCarData(){
     const car = {};
+        
+    car.title = document.querySelector('._1KQme').textContent;
+    car.url = document.URL;
+
     let price = document.querySelector('.eVLNz ._386c2 ._1F5u3').textContent;
     price = price.replace(/\s€/, '');
     car.price = price.replace(/\s/, '');
-    
-    car.year = document.querySelectorAll('._2B0Bw._1nLtd ._3Jxf3')[2].textContent;
-    
+
     let mileage = document.querySelectorAll('._2B0Bw._1nLtd ._3Jxf3')[3].textContent;
     car.mileage = mileage.replace(/\skm/, '');
     
-    car.title = document.querySelector('._1KQme').textContent;
-    
-    car.url = document.URL;
+    car.year = document.querySelectorAll('._2B0Bw._1nLtd ._3Jxf3')[2].textContent;
 
     return car;
 }
