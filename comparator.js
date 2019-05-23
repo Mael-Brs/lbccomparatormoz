@@ -10,7 +10,7 @@ browser.runtime.onMessage.addListener((m) => {
 function extractCarData(){
     const car = {};
         
-    car.title = document.querySelector('._1KQme').textContent;
+    car.title = document.querySelector('._246DF._2S4wz').textContent;
     car.url = document.URL;
 
     let price = document.querySelector('.eVLNz ._386c2 ._1F5u3').textContent;

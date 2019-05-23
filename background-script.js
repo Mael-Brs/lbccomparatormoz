@@ -129,12 +129,12 @@ function exportToCsv(data){
     });
   
     let blob = new Blob([result], {type: 'text/csv;charset=utf-8'});
-    browser.downloads.download({url: URL.createObjectURL(blob), saveAs: true});
+    browser.downloads.download({url: URL.createObjectURL(blob), saveAs: true, filename:'result.csv'});
     const createData = {
         type: 'detached_panel',
         url: 'data-window.html',
         width: 250,
         height: 100
     };
-    browser.windows.create(createData);
+    //browser.windows.create(createData);
 }
