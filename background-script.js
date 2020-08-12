@@ -8,6 +8,7 @@ const filter = {
         {hostContains: 'leboncoin.fr'}
     ]
 };
+let tabIds = null;
 
 /**
  * Send extract notification to content script
@@ -35,6 +36,7 @@ function extractUrlsCallback(response) {
  */
 browser.browserAction.onClicked.addListener(() => {
     cars = [];
+    tabIds = [];
     resultSize = null;
     browser.tabs.query({
         currentWindow: true,
@@ -54,7 +56,14 @@ function asyncExtract(urls){
 }
   
 function logOnCompleted(details) {
+    if(tabIds !== null && tabIds.indexOf(details.tabId) > -1){
+        sendExtractCarRequest(details)
+    }
+}
+
+function sendExtractCarRequest(details){
     setTimeout(() => {
+
         browser.tabs.sendMessage(
             details.tabId,
             {action: 'extractCarData'}
@@ -96,7 +105,11 @@ function openTab(url){
             url:url,
             active:true
         }
-    );
+    ).then(onCreated);
+}
+
+function onCreated(tab) {
+    tabIds.push(tab.id);
 }
 
 /**
@@ -133,11 +146,11 @@ function exportToCsv(data){
   
     let blob = new Blob([result], {type: 'text/csv;charset=utf-8'});
     browser.downloads.download({url: URL.createObjectURL(blob), saveAs: true, filename:'result.csv'});
-    const createData = {
-        type: 'detached_panel',
-        url: 'data-window.html',
-        width: 250,
-        height: 100
-    };
+    // const createData = {
+    //     type: 'detached_panel',
+    //     url: 'data-window.html',
+    //     width: 250,
+    //     height: 100
+    // };
     //browser.windows.create(createData);
 }
