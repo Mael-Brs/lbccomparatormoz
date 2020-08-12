@@ -1,52 +1,50 @@
 
-extractAndSend();
 
-browser.runtime.onMessage.addListener((m) => {
+browser.runtime.onMessage.addListener((m, sender, sendResponse) => {
     if(m.action && m.action === 'extractLinks'){
-        adsLinks();
+        adsLinks(sendResponse);
+    } else if (m.action === 'extractCarData'){
+        extractAndSend(sendResponse);
     }
 });
 
 function extractCarData(){
     const car = {};
         
-    car.title = document.querySelector('._246DF._2S4wz').textContent;
+    car.title = document.querySelectorAll('[data-qa-id="adview_title"]')[1].textContent;
     car.url = document.URL;
 
-    let price = document.querySelector('.eVLNz ._386c2 ._1F5u3').textContent;
+    let price = document.querySelectorAll('[data-qa-id="adview_price"]')[1].textContent;
     price = price.replace(/\s€/, '');
     car.price = price.replace(/\s/, '');
 
-    let mileage = document.querySelectorAll('._2B0Bw._1nLtd ._3Jxf3')[3].textContent;
+    let mileage = document.querySelectorAll('[data-qa-id="criteria_item_mileage"]')[0].querySelectorAll('div p')[1].textContent;
     car.mileage = mileage.replace(/\skm/, '');
     
-    car.year = document.querySelectorAll('._2B0Bw._1nLtd ._3Jxf3')[2].textContent;
-
+    car.year = document.querySelectorAll('[data-qa-id="criteria_item_regdate"]')[0].querySelectorAll('div p')[1].textContent;
+    
     return car;
 }
 
-function extractAndSend(){
+function extractAndSend(sendResponse){
     if(window.location.toString().indexOf('recherche/') !== -1){
         return;
     }
     const car = extractCarData();
-
-    browser.runtime.sendMessage({car: car});
+    //browser.runtime.sendMessage({car: car});
+    sendResponse({car: car});
 }
 
-function adsLinks(){
+function adsLinks(sendResponse){
     const aElements = document.querySelectorAll('a.clearfix.trackable');
     if(!aElements || aElements.length <= 0){
         return;
     }
-    // Delete data in memory
-    browser.runtime.sendMessage({cleanCars: true});
 
     const urlList = [];
     aElements.forEach(item => {
         urlList.push(item.href);
     });
 
-    browser.runtime.sendMessage({urls: urlList});
-
+    sendResponse({urls: urlList});
 }

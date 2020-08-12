@@ -29,7 +29,9 @@
     "<all_urls>",
     "tabs",
     "downloads",
-    "downloads.open"
+    "downloads.open",
+    "webNavigation",
+    "debugger"
   ]
 
 }

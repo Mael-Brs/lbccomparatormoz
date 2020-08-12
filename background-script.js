@@ -1,17 +1,32 @@
 const chunk = 5;
 let cars = [];
 let resultSize = null;
+let urlList = null;
+const filter = {
+    url:
+    [
+        {hostContains: 'leboncoin.fr'}
+    ]
+};
 
 /**
  * Send extract notification to content script
  * @param {Browser tabs} tabs 
  */
-function sendMessageToTabs(tabs) {
+function sendUrlsExtractMessage(tabs) {
     for (let tab of tabs) {
         browser.tabs.sendMessage(
             tab.id,
-            {action: 'extractLinks'}
+            {action: 'extractLinks'},
+            extractUrlsCallback
         );
+    }
+}
+
+function extractUrlsCallback(response) {
+    if(response.urls){
+        resultSize = 0;
+        asyncExtract(response.urls);
     }
 }
 
@@ -19,68 +34,56 @@ function sendMessageToTabs(tabs) {
  * Toolbar button click action
  */
 browser.browserAction.onClicked.addListener(() => {
+    cars = [];
+    resultSize = null;
     browser.tabs.query({
         currentWindow: true,
         active: true
-    }).then(sendMessageToTabs);
-});
-
-/**
- * Tab notification listener
- */
-browser.runtime.onMessage.addListener(function(m) {
-    if(m.urls){
-        asyncExtract(m.urls);
-    } else if(m.cleanCars){
-        cars = [];
-        resultSize = null;
-    }
+    }).then(sendUrlsExtractMessage);
 });
 
 /**
  * Chunck list of ads urls to extract
  * @param {Array<String>} urls 
  */
-async function asyncExtract(urls){
-    let i,j,childArray;
-    resultSize = 0;
-    for (i=0,j=urls.length; i<j; i+=chunk) {
-        childArray = urls.slice(i,i+chunk);
-        resultSize += childArray.length;
-        await chunckAndOpenTab(childArray);
-    }
-    exportToCsv(cars);
+function asyncExtract(urls){
+    let childArray = urls.splice(0,chunk);
+    urlList = urls;
+    resultSize += childArray.length;
+    chunckAndOpenTab(childArray);
 }
+  
+function logOnCompleted(details) {
+    setTimeout(() => {
+        browser.tabs.sendMessage(
+            details.tabId,
+            {action: 'extractCarData'}
+        ).then(response =>{
+            if (response.car){
+                cars.push(response.car);     
+                browser.tabs.remove(details.tabId);
+                if(cars.length === resultSize){
+                    if(urlList.length > 0){
+                        asyncExtract(urlList);
+                    } else {
+                        exportToCsv(cars);
+                    }
+                }
+            }
+        });
+    } , 5000);
+}
+  
+browser.webNavigation.onCompleted.addListener(logOnCompleted, filter);
 
 /**
  * Open tab and wait for extracting response
  * @param {*} urls 
  */
-async function chunckAndOpenTab(urls){
-    const promise = waitForFinish();
+function chunckAndOpenTab(urls){
     for(let i = 0 ; i < urls.length ; i++){
         openTab(urls[i]);
     }
-    await promise;
-}
-
-/**
- * Wait for extracting
- */
-function waitForFinish() {
-    return new Promise(resolve => {
-        const extractCarCallback = (m, sender) => {
-            if (m.car){
-                cars.push(m.car);
-                browser.tabs.remove(sender.tab.id);
-                if(resultSize && cars.length === resultSize){
-                    browser.runtime.onMessage.removeListener(extractCarCallback);
-                    resolve();
-                }
-            }
-        };
-        browser.runtime.onMessage.addListener(extractCarCallback);
-    });
 }
 
 /**
