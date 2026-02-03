@@ -57,7 +57,7 @@ function asyncExtract(urls){
   
 function logOnCompleted(details) {
     if(tabIds !== null && tabIds.indexOf(details.tabId) > -1){
-        sendExtractCarRequest(details)
+        sendExtractCarRequest(details);
     }
 }
 
@@ -90,8 +90,8 @@ browser.webNavigation.onCompleted.addListener(logOnCompleted, filter);
  * @param {*} urls 
  */
 function chunckAndOpenTab(urls){
-    for(let i = 0 ; i < urls.length ; i++){
-        openTab(urls[i]);
+    for(const element of urls) {
+        openTab(element);
     }
 }
 

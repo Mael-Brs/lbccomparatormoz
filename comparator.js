@@ -1,10 +1,10 @@
 
 
-browser.runtime.onMessage.addListener((m, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((m) => {
     if(m.action && m.action === 'extractLinks'){
-        adsLinks(sendResponse);
+        return Promise.resolve(adsLinks());
     } else if (m.action === 'extractCarData'){
-        extractAndSend(sendResponse);
+        return Promise.resolve(extractAndSend());
     }
 });
 
@@ -26,25 +26,24 @@ function extractCarData(){
     return car;
 }
 
-function extractAndSend(sendResponse){
+function extractAndSend(){
     if(window.location.toString().indexOf('recherche/') !== -1){
-        return;
+        return null;
     }
     const car = extractCarData();
-    //browser.runtime.sendMessage({car: car});
-    sendResponse({car: car});
+    return {car: car};
 }
 
-function adsLinks(sendResponse){
-    const aElements = document.querySelectorAll('a.clearfix.trackable');
+function adsLinks(){
+    const aElements = document.querySelectorAll('a[href*="/ad/"]');
     if(!aElements || aElements.length <= 0){
-        return;
+        return null;
     }
 
-    const urlList = [];
+    const urlSet = new Set();
     aElements.forEach(item => {
-        urlList.push(item.href);
+        urlSet.add(item.href);
     });
 
-    sendResponse({urls: urlList});
+    return {urls: Array.from(urlSet)};
 }
