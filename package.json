@@ -1,5 +1,15 @@
 {
+  "name": "lbc-comparator",
+  "version": "1.0.0",
+  "description": "Extract and compare car data from leboncoin",
+  "scripts": {
+    "postinstall": "npx playwright install chromium",
+    "scrape": "node scraper.js",
+    "lint": "eslint ."
+  },
   "dependencies": {
-    "eslint": "^9.39.2"
+    "eslint": "^9.39.2",
+    "playwright": "^1.58.1",
+    "simple-statistics": "^7.8.8"
   }
 }
